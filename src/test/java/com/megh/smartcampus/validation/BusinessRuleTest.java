@@ -1,9 +1,8 @@
 package com.megh.smartcampus.validation;
 
-import com.megh.smartcampus.dto.request.CreateEventRequest;
-import com.megh.smartcampus.dto.request.CreateClassroomRequest;
 import com.megh.smartcampus.dto.request.CreateGraphEdgeRequest;
-import com.megh.smartcampus.entity.Classroom;
+import com.megh.smartcampus.dto.request.CreateBuildingRequest;
+import com.megh.smartcampus.entity.Building;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -11,155 +10,114 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Bean Validation tests — verify DTO constraints work correctly.
- *
- * Uses the Hibernate Validator directly, so no Spring context is needed.
- * Very fast tests that catch configuration mistakes before deployment.
- *
- * Interview talking point:
- *   "I test validation at the DTO layer. If a constraint annotation is
- *    mis-configured, this test catches it immediately without spinning up
- *    an HTTP server."
+ * Bean Validation tests — verify DTO constraints fire correctly.
+ * Uses Hibernate Validator directly; no Spring context needed. Very fast.
  */
-@DisplayName("DTO Bean Validation — Business Rule Tests")
+@DisplayName("DTO Bean Validation Tests")
 class BusinessRuleTest {
 
     private static Validator validator;
 
     @BeforeAll
-    static void setUpValidator() {
+    static void setup() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // ── Classroom DTO ─────────────────────────────────────────────────
+    // ── Building DTO ──────────────────────────────────────────────────
 
     @Test
-    @DisplayName("Classroom: missing room number produces a validation error")
-    void classroom_roomNumberRequired() {
-        CreateClassroomRequest req = new CreateClassroomRequest();
-        req.setBuildingId(1L);
-        req.setRoomType(Classroom.RoomType.LECTURE_HALL);
-        // roomNumber intentionally left blank
+    @DisplayName("Building: missing name produces a validation error")
+    void building_nameRequired() {
+        CreateBuildingRequest req = new CreateBuildingRequest();
+        req.setType(Building.BuildingType.ACADEMIC);
+        // name intentionally blank
 
-        Set<ConstraintViolation<CreateClassroomRequest>> violations = validator.validate(req);
-        assertThat(violations).isNotEmpty();
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("roomNumber"));
+        Set<ConstraintViolation<CreateBuildingRequest>> violations = validator.validate(req);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("name"));
     }
 
     @Test
-    @DisplayName("Classroom: negative capacity produces a validation error")
-    void classroom_negativeCapacityRejected() {
-        CreateClassroomRequest req = new CreateClassroomRequest();
-        req.setRoomNumber("CSE-101");
-        req.setBuildingId(1L);
-        req.setRoomType(Classroom.RoomType.LECTURE_HALL);
-        req.setCapacity(-50);   // negative — violates @Positive
+    @DisplayName("Building: missing type produces a validation error")
+    void building_typeRequired() {
+        CreateBuildingRequest req = new CreateBuildingRequest();
+        req.setName("CSE Block");
+        // type intentionally null
 
-        Set<ConstraintViolation<CreateClassroomRequest>> violations = validator.validate(req);
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("capacity"));
+        Set<ConstraintViolation<CreateBuildingRequest>> violations = validator.validate(req);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("type"));
     }
 
     @Test
-    @DisplayName("Classroom: zero capacity also rejected (must be strictly positive)")
-    void classroom_zeroCapacityRejected() {
-        CreateClassroomRequest req = new CreateClassroomRequest();
-        req.setRoomNumber("CSE-102");
-        req.setBuildingId(1L);
-        req.setRoomType(Classroom.RoomType.LECTURE_HALL);
-        req.setCapacity(0);   // zero — violates @Positive
+    @DisplayName("Building: floors = 0 rejected (must be at least 1)")
+    void building_zeroFloorsRejected() {
+        CreateBuildingRequest req = new CreateBuildingRequest();
+        req.setName("CSE Block");
+        req.setType(Building.BuildingType.ACADEMIC);
+        req.setFloors(0);
 
-        Set<ConstraintViolation<CreateClassroomRequest>> violations = validator.validate(req);
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("capacity"));
+        Set<ConstraintViolation<CreateBuildingRequest>> violations = validator.validate(req);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("floors"));
     }
 
     @Test
-    @DisplayName("Classroom: valid request passes all constraints")
-    void classroom_validRequestPassesValidation() {
-        CreateClassroomRequest req = new CreateClassroomRequest();
-        req.setRoomNumber("CSE-101");
-        req.setBuildingId(1L);
-        req.setRoomType(Classroom.RoomType.LECTURE_HALL);
-        req.setCapacity(60);
-        req.setFloor(1);
+    @DisplayName("Building: valid request passes all constraints")
+    void building_validRequest() {
+        CreateBuildingRequest req = new CreateBuildingRequest();
+        req.setName("CSE Block");
+        req.setType(Building.BuildingType.ACADEMIC);
+        req.setFloors(4);
+        req.setCoordinateX(25.0);
+        req.setCoordinateY(55.0);
 
-        Set<ConstraintViolation<CreateClassroomRequest>> violations = validator.validate(req);
+        Set<ConstraintViolation<CreateBuildingRequest>> violations = validator.validate(req);
         assertThat(violations).isEmpty();
-    }
-
-    // ── Event DTO ─────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("Event: missing title produces a validation error")
-    void event_titleRequired() {
-        CreateEventRequest req = new CreateEventRequest();
-        req.setStartTime(LocalDateTime.now().plusDays(1));
-        req.setEndTime(LocalDateTime.now().plusDays(2));
-        // title intentionally blank
-
-        Set<ConstraintViolation<CreateEventRequest>> violations = validator.validate(req);
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("title"));
-    }
-
-    @Test
-    @DisplayName("Event: missing start time produces a validation error")
-    void event_startTimeRequired() {
-        CreateEventRequest req = new CreateEventRequest();
-        req.setTitle("Tech Fest 2025");
-        req.setEndTime(LocalDateTime.now().plusDays(2));
-        // startTime intentionally null
-
-        Set<ConstraintViolation<CreateEventRequest>> violations = validator.validate(req);
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("startTime"));
-    }
-
-    @Test
-    @DisplayName("Event: negative maxParticipants produces a validation error")
-    void event_negativeMaxParticipantsRejected() {
-        CreateEventRequest req = new CreateEventRequest();
-        req.setTitle("Tech Fest");
-        req.setStartTime(LocalDateTime.now().plusDays(1));
-        req.setEndTime(LocalDateTime.now().plusDays(2));
-        req.setMaxParticipants(-1);   // violates @Positive
-
-        Set<ConstraintViolation<CreateEventRequest>> violations = validator.validate(req);
-        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("maxParticipants"));
     }
 
     // ── Graph edge DTO ────────────────────────────────────────────────
 
     @Test
-    @DisplayName("GraphEdge: zero distance produces a validation error")
+    @DisplayName("GraphEdge: zero distance rejected (must be positive)")
     void graphEdge_zeroDistanceRejected() {
         CreateGraphEdgeRequest req = new CreateGraphEdgeRequest();
         req.setSourceNodeId(1L);
         req.setTargetNodeId(2L);
-        req.setDistanceMeters(0.0);   // violates @Positive
+        req.setDistanceMeters(0.0);
 
         Set<ConstraintViolation<CreateGraphEdgeRequest>> violations = validator.validate(req);
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("distanceMeters"));
     }
 
     @Test
-    @DisplayName("GraphEdge: negative distance produces a validation error")
+    @DisplayName("GraphEdge: negative distance rejected")
     void graphEdge_negativeDistanceRejected() {
         CreateGraphEdgeRequest req = new CreateGraphEdgeRequest();
         req.setSourceNodeId(1L);
         req.setTargetNodeId(2L);
-        req.setDistanceMeters(-100.0);  // negative metres — makes no sense
+        req.setDistanceMeters(-50.0);
 
         Set<ConstraintViolation<CreateGraphEdgeRequest>> violations = validator.validate(req);
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("distanceMeters"));
     }
 
     @Test
+    @DisplayName("GraphEdge: missing source node ID rejected")
+    void graphEdge_missingSourceId() {
+        CreateGraphEdgeRequest req = new CreateGraphEdgeRequest();
+        req.setTargetNodeId(2L);
+        req.setDistanceMeters(100.0);
+
+        Set<ConstraintViolation<CreateGraphEdgeRequest>> violations = validator.validate(req);
+        assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("sourceNodeId"));
+    }
+
+    @Test
     @DisplayName("GraphEdge: valid request passes all constraints")
-    void graphEdge_validRequestPassesValidation() {
+    void graphEdge_validRequest() {
         CreateGraphEdgeRequest req = new CreateGraphEdgeRequest();
         req.setSourceNodeId(1L);
         req.setTargetNodeId(2L);

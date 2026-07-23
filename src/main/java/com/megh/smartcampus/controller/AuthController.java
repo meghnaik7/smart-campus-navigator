@@ -40,10 +40,4 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(authService.refresh(token));
     }
-
-    @GetMapping("/health")
-    @Operation(summary = "Health check")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP", "app", "Smart Campus Navigator"));
-    }
 }

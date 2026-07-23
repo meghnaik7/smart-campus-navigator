@@ -5,12 +5,30 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    @NotBlank @Size(min=2, max=50) private String firstName;
-    @NotBlank @Size(min=2, max=50) private String lastName;
-    @NotBlank @Email                private String email;
-    @NotBlank @Size(min=8, max=100) private String password;
-    private String phone;
-    private String studentId;
-    private String department;
-    @Min(1) @Max(6) private Integer yearOfStudy;
+
+    // Only firstName and email are truly required for an account to work.
+    // lastName, studentId, department, yearOfStudy are all optional.
+
+    @NotBlank(message = "First name is required")
+    @Size(min = 2, max = 50, message = "First name must be 2-50 characters")
+    private String firstName;
+
+    @Size(max = 50, message = "Last name must be 50 characters or fewer")
+    private String lastName;       // optional
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Must be a valid email address")
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 100, message = "Password must be at least 8 characters")
+    private String password;
+
+    private String phone;          // optional
+    private String studentId;      // optional
+    private String department;     // optional
+
+    @Min(value = 1, message = "Year of study must be 1 or more")
+    @Max(value = 6, message = "Year of study must be 6 or fewer")
+    private Integer yearOfStudy;   // optional — Integer so null is accepted
 }

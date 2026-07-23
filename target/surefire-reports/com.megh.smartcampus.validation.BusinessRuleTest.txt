@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.megh.smartcampus.validation.BusinessRuleTest
 -------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.695 s -- in com.megh.smartcampus.validation.BusinessRuleTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.578 s -- in com.megh.smartcampus.validation.BusinessRuleTest

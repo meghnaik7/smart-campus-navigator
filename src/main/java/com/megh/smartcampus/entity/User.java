@@ -39,9 +39,6 @@ public class User extends BaseEntity {
     @Column(name = "year_of_study")
     private Integer yearOfStudy;
 
-    @Column(name = "profile_picture_url", length = 500)
-    private String profilePictureUrl;
-
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;

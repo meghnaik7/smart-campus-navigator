@@ -16,7 +16,6 @@ public class UserResponse {
     private String studentId;
     private String department;
     private Integer yearOfStudy;
-    private String profilePictureUrl;
     private Boolean isActive;
     private LocalDateTime createdAt;
 }

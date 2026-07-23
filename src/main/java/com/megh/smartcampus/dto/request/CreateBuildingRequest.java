@@ -4,12 +4,6 @@ import com.megh.smartcampus.entity.Building;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-/**
- * DTO for creating a new building.
- * Bean Validation annotations mean the controller never receives
- * invalid data — Spring rejects it before our code even runs,
- * and GlobalExceptionHandler returns a proper 400 with field details.
- */
 @Data
 public class CreateBuildingRequest {
 
@@ -18,7 +12,7 @@ public class CreateBuildingRequest {
     private String name;
 
     @Size(max = 30, message = "Code must be 30 characters or fewer")
-    private String code;          // optional, but must be unique if provided
+    private String code;
 
     @Size(max = 500)
     private String description;
@@ -30,9 +24,6 @@ public class CreateBuildingRequest {
     @Max(value = 100, message = "Floors must be 100 or fewer")
     private Integer floors;
 
-    private Double coordinateX;   // 0–100 map percentage
+    private Double coordinateX;
     private Double coordinateY;
-
-    @Size(max = 500)
-    private String imageUrl;
 }

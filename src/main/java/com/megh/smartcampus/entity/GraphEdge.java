@@ -36,9 +36,6 @@ public class GraphEdge extends BaseEntity {
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "description", length = 255)
-    private String description;
-
     public boolean isActive() { return Boolean.TRUE.equals(isActive); }
     public boolean isBidirectional() { return Boolean.TRUE.equals(isBidirectional); }
 

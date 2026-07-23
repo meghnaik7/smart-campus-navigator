@@ -36,12 +36,7 @@ public class GraphNode extends BaseEntity {
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "is_accessible")
-    @Builder.Default
-    private Boolean isAccessible = true;
-
     public boolean isActive() { return Boolean.TRUE.equals(isActive); }
-    public boolean isAccessible() { return Boolean.TRUE.equals(isAccessible); }
 
     public enum NodeType {
         BUILDING_ENTRANCE, BUILDING_EXIT, INTERSECTION,

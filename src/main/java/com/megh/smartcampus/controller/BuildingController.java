@@ -99,7 +99,6 @@ public class BuildingController {
             .floors(req.getFloors())
             .coordinateX(req.getCoordinateX())
             .coordinateY(req.getCoordinateY())
-            .imageUrl(req.getImageUrl())
             .isActive(true)
             .build();
 
@@ -123,7 +122,6 @@ public class BuildingController {
         b.setFloors(req.getFloors());
         b.setCoordinateX(req.getCoordinateX());
         b.setCoordinateY(req.getCoordinateY());
-        b.setImageUrl(req.getImageUrl());
 
         Building saved = buildingRepo.save(b);
         trieService.reload();
@@ -153,7 +151,6 @@ public class BuildingController {
         m.put("floors",      b.getFloors());
         m.put("coordinateX", b.getCoordinateX());
         m.put("coordinateY", b.getCoordinateY());
-        m.put("imageUrl",    b.getImageUrl());
         m.put("isActive",    b.getIsActive());
         return m;
     }

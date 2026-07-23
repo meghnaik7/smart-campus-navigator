@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface BuildingRepository extends JpaRepository<Building, Long> {
-    Optional<Building> findByCode(String code);
     List<Building> findByIsActiveTrue();
     List<Building> findByTypeAndIsActiveTrue(Building.BuildingType type);
     boolean existsByCode(String code);

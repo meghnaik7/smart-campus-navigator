@@ -3,12 +3,8 @@ package com.megh.smartcampus.algorithm.graph;
 import java.util.*;
 
 /**
- * CampusGraph — weighted directed adjacency-list graph.
- *
- * Algorithms implemented from scratch (no external library):
- *   • Dijkstra  — shortest path by total distance (metres)
- *   • BFS       — shortest path by hop count
- *   • findNearest — run Dijkstra to each candidate, keep minimum
+ * CampusGraph - weighted directed adjacency-list graph.
+ * Implements Dijkstra's shortest-path algorithm from scratch (no external library).
  */
 public class CampusGraph {
 
@@ -28,16 +24,24 @@ public class CampusGraph {
      * If bidirectional, also adds the reverse edge tgt→src.
      */
     public void addEdge(GraphEdgeModel edge) {
-        adjacencyList
-            .computeIfAbsent(edge.getSource(), k -> new ArrayList<>())
-            .add(edge);
+        addDirectedEdge(edge);
 
         if (edge.isBidirectional()) {
-            // reverse edge — bidirectional=false so we don't recurse
-            adjacencyList
-                .computeIfAbsent(edge.getTarget(), k -> new ArrayList<>())
-                .add(new GraphEdgeModel(edge.getTarget(), edge.getSource(), edge.getWeight(), false));
+            GraphEdgeModel reverse = new GraphEdgeModel(
+                    edge.getTarget(),
+                    edge.getSource(),
+                    edge.getWeight(),
+                    false
+            );
+
+            addDirectedEdge(reverse);
         }
+    }
+
+    private void addDirectedEdge(GraphEdgeModel edge) {
+        adjacencyList
+                .computeIfAbsent(edge.getSource(), k -> new ArrayList<>())
+                .add(edge);
     }
 
     public void clear() {
@@ -122,42 +126,6 @@ public class CampusGraph {
      */
     private record QueueEntry(long nodeId, double distance) {}
 
-    // ── BFS ─────────────────────────────────────────────────────────────
-
-    /**
-     * BFS — finds path with fewest hops (ignores edge weights).
-     * Useful for checking connectivity or when all edges are equal.
-     * Time complexity: O(V + E)
-     */
-    public RouteResult bfs(long src, long dst) {
-        if (!nodes.containsKey(src) || !nodes.containsKey(dst))
-            return new RouteResult("Source or destination node not found");
-        if (src == dst) return new RouteResult(List.of(nodes.get(src)), 0.0);
-
-        Queue<Long>        queue   = new LinkedList<>();
-        Set<Long>          visited = new HashSet<>();
-        Map<Long, Long>    prev    = new HashMap<>();
-
-        queue.add(src);
-        visited.add(src);
-        prev.put(src, null);
-
-        while (!queue.isEmpty()) {
-            long current = queue.poll();
-            if (current == dst) return buildPath(prev, src, dst, -1.0);
-
-            for (GraphEdgeModel edge : adjacencyList.getOrDefault(current, List.of())) {
-                long nb = edge.getTarget();
-                if (!visited.contains(nb)) {
-                    visited.add(nb);
-                    prev.put(nb, current);
-                    queue.add(nb);
-                }
-            }
-        }
-        return new RouteResult("No path found between nodes " + src + " and " + dst);
-    }
-
     // ── Find nearest ─────────────────────────────────────────────────────
 
     /**
@@ -201,21 +169,6 @@ public class CampusGraph {
         if (path.isEmpty() || path.get(0).getId() != src)
             return new RouteResult("Path reconstruction failed — start node mismatch");
 
-        double distance = (knownDist < 0) ? estimateDistanceFromCoordinates(path) : knownDist;
-        return new RouteResult(path, distance);
-    }
-
-    /**
-     * Fallback distance estimation using Euclidean distance between node coordinates.
-     * Only used by BFS (which does not track actual edge weights).
-     */
-    private double estimateDistanceFromCoordinates(List<GraphNodeModel> path) {
-        double total = 0.0;
-        for (int i = 0; i < path.size() - 1; i++) {
-            double dx = path.get(i + 1).getX() - path.get(i).getX();
-            double dy = path.get(i + 1).getY() - path.get(i).getY();
-            total += Math.sqrt(dx * dx + dy * dy);
-        }
-        return total;
+        return new RouteResult(path, knownDist);
     }
 }

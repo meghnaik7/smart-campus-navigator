@@ -30,9 +30,6 @@ public class Building extends BaseEntity {
     @Column(name = "coordinate_y")
     private Double coordinateY;
 
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
-
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;

@@ -47,9 +47,7 @@ public class GraphService {
     }
 
     public RouteResult dijkstra(long src, long dst)   { return graph.dijkstra(src, dst); }
-    public RouteResult bfs(long src, long dst)         { return graph.bfs(src, dst); }
     public RouteResult nearest(long src, List<Long> c) { return graph.findNearest(src, c); }
-    public GraphNodeModel getNode(long id)             { return graph.getNode(id); }
 
     public String stats() {
         return "Nodes: " + graph.getNodeCount() + ", Edges: " + graph.getEdgeCount();

@@ -12,5 +12,4 @@ public class AppException extends RuntimeException {
     public static AppException notFound(String msg)    { return new AppException(msg, HttpStatus.NOT_FOUND); }
     public static AppException badRequest(String msg)  { return new AppException(msg, HttpStatus.BAD_REQUEST); }
     public static AppException unauthorized(String msg){ return new AppException(msg, HttpStatus.UNAUTHORIZED); }
-    public static AppException forbidden(String msg)   { return new AppException(msg, HttpStatus.FORBIDDEN); }
 }
